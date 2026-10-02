@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Поиск пользователя</title>
+    <style>
+        :root {
+            --bg1: #eef2ff;
+            --bg2: #fdf2f8;
+            --card: #ffffff;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --accent: #4f46e5;
+            --accent-ink: #ffffff;
+            --err-bg: #fef2f2;
+            --err-ink: #b91c1c;
+            --line: #e5e7eb;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--ink);
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 48px 16px;
+        }
+        .wrap { width: 100%; max-width: 640px; }
+        h1 { font-size: 1.5rem; margin: 0 0 4px; }
+        .sub { color: var(--muted); margin: 0 0 24px; font-size: .95rem; }
+        form { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 14px;
+            font-size: 1rem;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--card);
+            color: var(--ink);
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-ink);
+            background: var(--accent);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background .15s, transform .05s;
+        }
+        button:hover { background: #4338ca; }
+        button:active { transform: translateY(1px); }
+        .alert {
+            background: var(--err-bg);
+            color: var(--err-ink);
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(17, 24, 39, .08);
+            overflow: hidden;
+        }
+        .card-head {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 24px;
+            background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+            border-bottom: 1px solid var(--line);
+        }
+        .card-head img {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 12px rgba(17, 24, 39, .15);
+        }
+        .card-head .name { font-size: 1.25rem; font-weight: 700; }
+        .card-head .id { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+        .badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 10px;
+            font-size: .75rem;
+            font-weight: 600;
+            border-radius: 999px;
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+        dl { margin: 0; padding: 8px 24px 24px; }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .row:last-child { border-bottom: none; }
+        dt { color: var(--muted); font-size: .9rem; }
+        dd { margin: 0; font-weight: 600; text-align: right; word-break: break-word; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .hint { text-align: center; color: var(--muted); padding: 40px 24px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Поиск пользователя</h1>
+    <p class="sub">Введите ID пользователя, чтобы увидеть карточку.</p>
+
+    <form method="post" action="/">
+        <input type="text" name="id" inputmode="numeric" autocomplete="off"
+               placeholder="Например, 1" value="{{ .Query }}" autofocus>
+        <button type="submit">Найти</button>
+    </form>
+
+    {{ if .Error }}
+        <div class="alert">{{ .Error }}</div>
+    {{ end }}
+
+    {{ if .User }}
+        <div class="card">
+            <div class="card-head">
+                {{ if .User.Picture.Large }}
+                    <img src="{{ .User.Picture.Large }}" alt="Фото {{ .User.FullName }}">
+                {{ end }}
+                <div>
+                    <div class="name">{{ .User.FullName }}</div>
+                    <div class="id">ID: {{ .User.ID }}</div>
+                    <span class="badge">
+                        {{ if eq .User.Gender "male" }}Мужчина{{ else }}Женщина{{ end }}
+                        · {{ .User.Nat }}
+                    </span>
+                </div>
+            </div>
+            <dl>
+                <div class="row"><dt>Email</dt><dd><a href="mailto:{{ .User.Email }}">{{ .User.Email }}</a></dd></div>
+                <div class="row"><dt>Телефон</dt><dd>{{ .User.Phone }}</dd></div>
+                <div class="row"><dt>Мобильный</dt><dd>{{ .User.Cell }}</dd></div>
+                <div class="row"><dt>Город</dt><dd>{{ .User.Location.City }}</dd></div>
+                <div class="row"><dt>Регион</dt><dd>{{ .User.Location.State }}</dd></div>
+                <div class="row"><dt>Страна</dt><dd>{{ .User.Location.Country }}</dd></div>
+                <div class="row"><dt>Индекс</dt><dd>{{ .User.Location.Postcode }}</dd></div>
+            </dl>
+        </div>
+    {{ else if not .Error }}
+        <div class="card"><div class="hint">Пока ничего не найдено.</div></div>
+    {{ end }}
+</div>
+</body>
+</html>
